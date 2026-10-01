@@ -130,7 +130,7 @@ class Chat extends Component
         return Message::create([
             'sender_id' => $this->senderId,
             'receiver_id' => $this->receiverId,
-            'message' => $this->message,
+            'message' => $this->message ?? null,
             'file_name' => $fileName,
             'file_original_name' => $fileOriginalName,
             'folder_path' => $folderPath,
