@@ -10,9 +10,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Chat extends Component
 {
+    use WithFileUploads;
+
     public $user;
 
     public $messages;
@@ -23,6 +26,8 @@ class Chat extends Component
 
     public $receiverId;
 
+    public $file;
+
     public function mount($userId)
     {
         // dd($userId);
@@ -31,13 +36,14 @@ class Chat extends Component
         $this->receiverId = $userId;
         // fetch messages
         $this->messages = $this->getMessages();
-        //read all messages
+        // read all messages
         $this->readAllMessages();
     }
 
     public function render()
     {
         $this->readAllMessages();
+
         return view('livewire.chat');
     }
 
@@ -60,6 +66,7 @@ class Chat extends Component
     {
         broadcast(new UserTyping($this->senderId, $this->receiverId))->toOthers();
     }
+
     public function readAllMessages()
     {
         Message::where('sender_id', $this->receiverId)
@@ -75,6 +82,7 @@ class Chat extends Component
 
     public function sendMessage()
     {
+
         $sentMessage = $this->saveMessage();
 
         // assign latest message
@@ -82,15 +90,16 @@ class Chat extends Component
 
         broadcast(new MessageSentEvent($sentMessage));
 
-        $unreadMessageCount =  $this->getUnreadMessageCount();
+        $unreadMessageCount = $this->getUnreadMessageCount();
 
         broadcast(new UnreadMessage($this->senderId, $this->receiverId, $unreadMessageCount))->toOthers();
 
         $this->message = null;
-
+        $this->file = null;
         // dispatching event to scroll to bottom
         $this->dispatch('messages-updated');
     }
+
     public function getUnreadMessageCount()
     {
         return Message::where('receiver_id', $this->receiverId)
@@ -112,13 +121,20 @@ class Chat extends Component
 
     public function saveMessage()
     {
+        // file handling
+        $fileName = $this->file?->hashName();
+        $fileOriginalName = $this->file?->getClientOriginalName();
+        $folderPath = $this->file ? $this->file->store('chat_files', 'public') : null;
+        $fileType = $this->file?->getMimeType();
+
         return Message::create([
             'sender_id' => $this->senderId,
             'receiver_id' => $this->receiverId,
             'message' => $this->message,
-            'file_name',
-            'file_original_name',
-            'folder_path',
+            'file_name' => $fileName,
+            'file_original_name' => $fileOriginalName,
+            'folder_path' => $folderPath,
+            'file_type' => $fileType,
             'is_read' => false,
         ]);
     }
