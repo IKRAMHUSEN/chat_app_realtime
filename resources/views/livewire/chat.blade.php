@@ -12,7 +12,9 @@
                     @if ($message->sender->id !== auth()->user()->id)
                         {{-- receiver --}}
                         <div class="flex items-start gap-4">
-                            <img src="https://i.pravatar.cc/80?img=47" alt="Shanay cruz"
+                            {{-- <img src="https://i.pravatar.cc/80?img=47" alt="Shanay cruz"
+                                class="mt-1 h-12 w-12 rounded-full object-cover ring-4 ring-white"> --}}
+                            <img src="https://i.pravatar.cc/80?img=47" alt="{{ $message->sender->name }}"
                                 class="mt-1 h-12 w-12 rounded-full object-cover ring-4 ring-white">
                             <div class="max-w-xl">
                                 <p class="mb-3 text-base font-semibold text-gray-900">{{ $message->sender->name }}</p>
@@ -27,7 +29,6 @@
                                                 src="{{ Storage::disk('public')->url($message->folder_path) }}"
                                                 alt="Attached image">
                                         @else
-
                                             <div
                                                 class="flex max-w-64 items-center justify-between gap-3 rounded bg-indigo-400 px-3 py-2 text-sm text-gray-900">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none"
